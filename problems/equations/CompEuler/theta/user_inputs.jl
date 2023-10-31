@@ -17,8 +17,8 @@ function user_inputs()
         #:llump               => true,
         :interpolation_nodes =>"lgl",
         #:nop                 => 4,      # Polynomial order
-        :nopx                => 3,
-        :nopy                => 3,
+        :nopx                => 4,
+        :nopy                => 4,
         #---------------------------------------------------------------------------
         # Physical parameters/constants:
         #---------------------------------------------------------------------------
