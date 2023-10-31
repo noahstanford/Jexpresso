@@ -27,7 +27,16 @@ function mod_inputs_user_inputs!(user_input_file)
     #
     # Check that necessary inputs exist in the Dict inside .../IO/user_inputs.jl
     #
-    mod_inputs_check(inputs, :nop, Int8(4), "w")  #Polynomial order
+    mod_inputs_check(inputs, :nop, Int8(4), "w")   #Polynomial order
+    if(!haskey(inputs, :nopx))
+        inputs[:nopx] = 4
+    end
+    if(!haskey(inputs, :nopy))
+        inputs[:nopy] = 4
+    end
+    if(!haskey(inputs, :nopz))
+        inputs[:nopz] = 0
+    end
     
     if(!haskey(inputs, :nop_laguerre))
         inputs[:nop_laguerre] = 18
@@ -66,7 +75,7 @@ function mod_inputs_user_inputs!(user_input_file)
     end
 
     if(!haskey(inputs, :h_mount))
-        inputs[:h_mount] = 1.0
+        inputs[:h_mount] = 0.0
     end
     
     if(!haskey(inputs, :c_mount))
