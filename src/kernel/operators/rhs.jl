@@ -255,6 +255,23 @@ function viscous_rhs_el!(u, params, SD::NSD_2D)
 end
 
 
+function _expansion_inviscid!(params, iel, ::CL, QT::Inexact, SD::NSD_1D)
+    
+    for ieq = 1:params.neqs
+        for i=1:params.mesh.ngl
+            ωJac = params.ω[i]*params.mesh.Δx[iel]/2
+            dξdx = 2.0/params.mesh.Δx[iel]
+            
+            dFdξ = 0.0
+            for k = 1:params.mesh.ngl
+                dFdξ += basis.dψ[k,i]*F[k,ieq]
+            end
+            
+            rhs_el[i,iel,ieq] -= params.ω[i]*dFdξ #  - S[i,j,ieq]) #gravity
+        end
+    end
+end
+
 function _expansion_inviscid!(params, iel, ::CL, QT::Inexact, SD::NSD_2D)
 
     for ieq=1:params.neqs
