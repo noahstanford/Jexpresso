@@ -50,10 +50,10 @@ function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
     bdy_flux   = zeros(qp.neqs,1)    
     uprimitive = zeros(T, mesh.ngl, mesh.ngl, qp.neqs+1)
     #filter arrays
-    q_t = zeros(Float64,qp.neqs,mesh.ngl,mesh.ngl)
-    q_ti = zeros(Float64,mesh.ngl,mesh.ngl)
+    q_t = zeros(Float64, qp.neqs, mesh.ngl, mesh.ngl)
+    q_ti = zeros(Float64, mesh.ngl, mesh.ngl)
     fy_t = transpose(fy)
-    fqf = zeros(Float64,qp.neqs,mesh.ngl,mesh.ngl)
+    fqf = zeros(Float64, qp.neqs, mesh.ngl, mesh.ngl)
     b = zeros(mesh.nelem, mesh.ngl, mesh.ngl, qp.neqs)
     B = zeros(Float64, mesh.npoin, qp.neqs) 
     #store grid limits to save time
@@ -138,19 +138,17 @@ function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
 
     output_range = floor((inputs[:tend] - inputs[:tinit])/inputs[:ndiagnostics_outputs])
 
+if (typeof(mesh.SD) != NSD_1D)
     if(lexact_integration)
        N = mesh.ngl
        Q = N + 1
-       mass_ini   = compute_mass!(uaux, u, params.qe, mesh, metrics, ω, qp.neqs, QT, Q, basis.ψ)
+       mass_ini   = compute_mass!(mesh.SD, uaux, u, params.qe, mesh, metrics, ω, qp.neqs, QT, Q, basis.ψ)
     else
-       mass_ini   = compute_mass!(uaux, u, params.qe, mesh, metrics, ω, qp.neqs, QT, SOL_VARS_TYPE)
+       mass_ini   = compute_mass!(mesh.SD, uaux, u, params.qe, mesh, metrics, ω, qp.neqs, QT, SOL_VARS_TYPE)
     end
     println(" # Initial Mass  :   ", mass_ini)
-
     energy_ini = 0.0
-    #energy_ini = compute_energy!(uaux, u, params.qe, mesh, metrics, ω,qp.neqs)
-    #println(" # Initial Energy: ", energy_ini)
-    
+end
     @time solution = solve(prob,
                            inputs[:ode_solver], dt=inputs[:Δt],
                            save_everystep = false,
@@ -158,13 +156,16 @@ function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
                            saveat = range(inputs[:tinit], inputs[:tend], length=inputs[:ndiagnostics_outputs]));
     println(" # Solving ODE  ................................ DONE")
 
+
+if (typeof(mesh.SD) != NSD_1D)
     println(" # Diagnostics  ................................ ")
     if ("Laguerre" in mesh.bdy_edge_type)
-    #    print_diagnostics(mass_ini, energy_ini, uaux, solution, mesh, metrics, ω, qp.neqs,QT,basis[1].ψ)
+    #    print_diagnostics(mesh.SD, mass_ini, energy_ini, uaux, solution, mesh, metrics, ω, qp.neqs,QT,basis[1].ψ)
     else
-     #   print_diagnostics(mass_ini, energy_ini, uaux, solution, mesh, metrics, ω, qp.neqs,QT,basis.ψ)
+     #   print_diagnostics(mesh.SD, mass_ini, energy_ini, uaux, solution, mesh, metrics, ω, qp.neqs,QT,basis.ψ)
     end
     println(" # Diagnostics  ................................ DONE")
-    
+end
+
     return solution
 end

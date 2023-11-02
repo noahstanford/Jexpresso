@@ -17,8 +17,8 @@ function solution_norms(sol::ODESolution, OUTPUT_DIR::String, inputs::Dict;)
 end
 
 
-
-function compute_mass!(uaux, u, uauxe, mesh, metrics, ω, neqs, ::Inexact,::TOTAL)
+    
+function compute_mass!(SD::NSD_2D, uaux, u, uauxe, mesh, metrics, ω, neqs, ::Inexact,::TOTAL)
     if ("Laguerre" in mesh.bdy_edge_type)
         u2uaux!(uaux, u, neqs, mesh.npoin)
         mass = 0.0
@@ -58,7 +58,7 @@ function compute_mass!(uaux, u, uauxe, mesh, metrics, ω, neqs, ::Inexact,::TOTA
     return mass
 
 end
-function compute_mass!(uaux, u, uauxe, mesh, metrics, ω,neqs,::Inexact,::PERT)
+function compute_mass!(SD::NSD_2D, uaux, u, uauxe, mesh, metrics, ω,neqs,::Inexact,::PERT)
    if ("Laguerre" in mesh.bdy_edge_type)
        u2uaux!(uaux, u, neqs, mesh.npoin)
        mass = 0.0
@@ -100,7 +100,7 @@ function compute_mass!(uaux, u, uauxe, mesh, metrics, ω,neqs,::Inexact,::PERT)
 end
 
 
-function compute_mass!(uaux, u, uauxe, mesh, metrics, ω,neqs,::Exact,Q,ψ)
+function compute_mass!(SD::NSD_2D, uaux, u, uauxe, mesh, metrics, ω,neqs,::Exact,Q,ψ)
 
     u2uaux!(uaux, u, neqs, mesh.npoin)
     mass = 0.0	
@@ -118,7 +118,7 @@ function compute_mass!(uaux, u, uauxe, mesh, metrics, ω,neqs,::Exact,Q,ψ)
 
 end
 
-function compute_energy!(uaux, u, uauxe, mesh, metrics, ω,neqs)
+function compute_energy!(SD::NSD_2D, uaux, u, uauxe, mesh, metrics, ω,neqs)
 
     PhysConst = PhysicalConst{Float64}()	 
     u2uaux!(uaux, u, neqs, mesh.npoin)
@@ -190,7 +190,12 @@ function compute_energy!(uaux, u, uauxe, mesh, metrics, ω,neqs)
 
 end
 
-function compute_energy!(uaux, u, uauxe, mesh, metrics, ω,neqs,QT::Exact,Q,ψ)
+
+function compute_energy!(SD::NSD_1D, uaux, u, uauxe, mesh, metrics, ω,neqs,QT::Exact,Q,ψ)
+    nothing
+end
+
+function compute_energy!(SD::NSD_2D, uaux, u, uauxe, mesh, metrics, ω,neqs,QT::Exact,Q,ψ)
 
     PhysConst = PhysicalConst{Float64}()	 
     u2uaux!(uaux, u, neqs, mesh.npoin)
@@ -222,8 +227,11 @@ function compute_energy!(uaux, u, uauxe, mesh, metrics, ω,neqs,QT::Exact,Q,ψ)
 
 end
 
+function print_diagnostics(SD::NSD_1D, mass_ini, energy_ini, uaux, uauxe, solution, mesh, metrics, ω, neqs,QT,ψ)
+    nothing
+end
 
-function print_diagnostics(mass_ini, energy_ini, uaux, uauxe, solution, mesh, metrics, ω, neqs,QT,ψ)
+function print_diagnostics(SD::NSD_2D, mass_ini, energy_ini, uaux, uauxe, solution, mesh, metrics, ω, neqs,QT,ψ)
     
     iout = inputs[:ndiagnostics_outputs]
     lexact_integration = inputs[:lexact_integration]
@@ -231,9 +239,9 @@ function print_diagnostics(mass_ini, energy_ini, uaux, uauxe, solution, mesh, me
     if(lexact_integration)
         N = mesh.ngl
         Q = N + 1
-        mass_final   = compute_mass!(uaux, @view(solution.u[iout][:]), @view(uauxe[:,:]), mesh, metrics, ω,neqs,QT,Q,ψ)
+        mass_final   = compute_mass!(SD, uaux, @view(solution.u[iout][:]), @view(uauxe[:,:]), mesh, metrics, ω,neqs,QT,Q,ψ)
     else
-        mass_final   = compute_mass!(uaux, @view(solution.u[iout][:]), @view(uauxe[:,:]), mesh, metrics, ω,neqs,QT)
+        mass_final   = compute_mass!(SD, uaux, @view(solution.u[iout][:]), @view(uauxe[:,:]), mesh, metrics, ω,neqs,QT)
     end
     
     #energy_final = compute_energy!(uaux, @view(solution.u[iout][:]), @view(uauxe[:,:]), mesh, metrics, ω, neqs)

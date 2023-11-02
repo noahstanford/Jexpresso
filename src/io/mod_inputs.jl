@@ -27,13 +27,54 @@ function mod_inputs_user_inputs!(user_input_file)
     #
     # Check that necessary inputs exist in the Dict inside .../IO/user_inputs.jl
     #
+    
+    #Grid entries:
+    if(!haskey(inputs, :lread_gmsh) || inputs[:lread_gmsh] == false)
+        
+        mod_inputs_check(inputs, :nsd,  Int8(1), "-")
+        mod_inputs_check(inputs, :nelx, "e")
+        mod_inputs_check(inputs, :xmin, "e")
+        mod_inputs_check(inputs, :xmax, "e")
+        mod_inputs_check(inputs, :nely,  Int8(2), "-")
+        mod_inputs_check(inputs, :ymin, Float64(-1.0), "-")
+        mod_inputs_check(inputs, :ymax, Float64(+1.0), "-")
+        mod_inputs_check(inputs, :nelz,  Int8(2), "-")
+        mod_inputs_check(inputs, :zmin, Float64(-1.0), "-")
+        mod_inputs_check(inputs, :zmax, Float64(+1.0), "-")
+        
+    else
+        mod_inputs_check(inputs, :gmsh_filename, "e")
+        
+        mod_inputs_check(inputs, :nsd,  Int8(3), "-")
+        mod_inputs_check(inputs, :nelx,  Int8(2), "-")
+        mod_inputs_check(inputs, :xmin, Float64(-1.0), "-")
+        mod_inputs_check(inputs, :xmax, Float64(+1.0), "-")
+        mod_inputs_check(inputs, :nely,  Int8(2), "-")
+        mod_inputs_check(inputs, :ymin, Float64(-1.0), "-")
+        mod_inputs_check(inputs, :ymax, Float64(+1.0), "-")
+        mod_inputs_check(inputs, :nelz,  Int8(2), "-")
+        mod_inputs_check(inputs, :zmin, Float64(-1.0), "-")
+        mod_inputs_check(inputs, :zmax, Float64(+1.0), "-")
+
+        s= string("jexpresso: Some undefined (but unnecessary) user inputs 
+                                  MAY have been given some default values.
+                                  User needs not to worry about them.")
+        
+        #@warn s
+        
+    end #lread_gmsh
+    
     mod_inputs_check(inputs, :nop, Int8(4), "w")   #Polynomial order
     if(!haskey(inputs, :nopx))
         inputs[:nopx] = 4
     end
     if(!haskey(inputs, :nopy))
         inputs[:nopy] = 4
+        if inputs[:lread_gmsh] == false
+            inputs[:nopy] = 0
+        end
     end
+
     if(!haskey(inputs, :nopz))
         inputs[:nopz] = 0
     end
@@ -253,41 +294,6 @@ function mod_inputs_user_inputs!(user_input_file)
         inputs[:loutput_pert] = false
     end
 
-    #Grid entries:
-    if(!haskey(inputs, :lread_gmsh) || inputs[:lread_gmsh] == false)
-        
-        mod_inputs_check(inputs, :nsd,  Int8(1), "-")
-        mod_inputs_check(inputs, :nelx, "e")
-        mod_inputs_check(inputs, :xmin, "e")
-        mod_inputs_check(inputs, :xmax, "e")
-        mod_inputs_check(inputs, :nely,  Int8(2), "-")
-        mod_inputs_check(inputs, :ymin, Float64(-1.0), "-")
-        mod_inputs_check(inputs, :ymax, Float64(+1.0), "-")
-        mod_inputs_check(inputs, :nelz,  Int8(2), "-")
-        mod_inputs_check(inputs, :zmin, Float64(-1.0), "-")
-        mod_inputs_check(inputs, :zmax, Float64(+1.0), "-")
-        
-    else
-        mod_inputs_check(inputs, :gmsh_filename, "e")
-        
-        mod_inputs_check(inputs, :nsd,  Int8(3), "-")
-        mod_inputs_check(inputs, :nelx,  Int8(2), "-")
-        mod_inputs_check(inputs, :xmin, Float64(-1.0), "-")
-        mod_inputs_check(inputs, :xmax, Float64(+1.0), "-")
-        mod_inputs_check(inputs, :nely,  Int8(2), "-")
-        mod_inputs_check(inputs, :ymin, Float64(-1.0), "-")
-        mod_inputs_check(inputs, :ymax, Float64(+1.0), "-")
-        mod_inputs_check(inputs, :nelz,  Int8(2), "-")
-        mod_inputs_check(inputs, :zmin, Float64(-1.0), "-")
-        mod_inputs_check(inputs, :zmax, Float64(+1.0), "-")
-
-        s= string("jexpresso: Some undefined (but unnecessary) user inputs 
-                                  MAY have been given some default values.
-                                  User needs not to worry about them.")
-        
-        #@warn s
-        
-    end #lread_gmsh
     #
     # Some physical constants and parameters:
     #    

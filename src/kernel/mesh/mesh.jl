@@ -67,8 +67,8 @@ Base.@kwdef mutable struct St_mesh{TInt, TFloat}
     nopy::Union{TInt, Missing} = 4
     nopz::Union{TInt, Missing} = 0
     ngl::Union{TInt, Missing} = nop + 1
-    nglx::Union{TInt, Missing} = nop + 1
-    ngly::Union{TInt, Missing} = nop + 1
+    nglx::Union{TInt, Missing} = nopx + 1
+    ngly::Union{TInt, Missing} = nopy + 1
     nglz::Union{TInt, Missing} = 0
     ngr::Union{TInt, Missing} = 0 #nop_gr
     npoin_el::Union{TInt, Missing} = 1     # Total number of points in the reference element
@@ -196,7 +196,6 @@ function mod_mesh_read_gmsh!(mesh::St_mesh, inputs::Dict)
     println(" # N. boundary faces : ", mesh.nfaces_bdy)
     println(" # GMSH LINEAR GRID PROPERTIES ...................... END")
     
-
     ngl                     = mesh.nop  + 1
     nglx                    = mesh.nopx + 1
     ngly                    = mesh.nopy + 1
@@ -870,8 +869,7 @@ function  add_high_order_nodes_1D_native_mesh!(mesh::St_mesh, interpolation_node
     
     #Increase number of grid points from linear count to total high-order points
     mesh.npoin = mesh.npoin_linear + tot_vol_internal_nodes
-    #resize!(mesh.x, (mesh.npoin))
-    mesh.x::Array{Float64, 1} = zeros(mesh.npoin)
+    resize!(mesh.x, (mesh.npoin))
     
     #
     # First pass: build coordinates and store IP into poin_in_edge[iedge_g, l]
@@ -899,7 +897,7 @@ function  add_high_order_nodes_1D_native_mesh!(mesh::St_mesh, interpolation_node
             ip = ip + 1
         end
     end
-    mesh.connijk = copy(mesh.conn)
+    #mesh.connijk = copy(mesh.conn)
     
     println(" # POPULATE 1D GRID with SPECTRAL NODES ............................ DONE")
     return 
@@ -2172,7 +2170,7 @@ function mod_mesh_build_mesh!(mesh::St_mesh, interpolation_nodes)
     
     Δx = abs(mesh.xmax - mesh.xmin)/(mesh.nelem)
     mesh.npoin = mesh.npx
-
+    
     mesh.x[1] = mesh.xmin
     for i = 2:mesh.npx
         mesh.x[i] = mesh.x[i-1] + Δx
@@ -2256,6 +2254,8 @@ function mod_mesh_mesh_driver(inputs::Dict)
                                             npx  = Int64(inputs[:npx]),
                                             xmin = Float64(inputs[:xmin]), xmax = Float64(inputs[:xmax]),
                                             nop=Int64(inputs[:nop]),
+                                            nopx=Int64(inputs[:nopx]),
+                                            nopy=Int64(inputs[:nopy]),
                                             SD=NSD_1D())
                 
             elseif (inputs[:nsd]==2)
@@ -2267,6 +2267,8 @@ function mod_mesh_mesh_driver(inputs::Dict)
                                             xmin = Float64(inputs[:xmin]), xmax = Float64(inputs[:xmax]),
                                             zmin = Float64(inputs[:zmin]), zmax = Float64(inputs[:zmax]),
                                             nop=Int64(inputs[:nop]),
+                                            nopx=Int64(inputs[:nopx]),
+                                            nopy=Int64(inputs[:nopy]),
                                             SD=NSD_2D())
                 
             elseif (inputs[:nsd]==3)
@@ -2384,7 +2386,7 @@ function compute_element_size(ie, mesh::St_mesh, SD::NSD_2D, T)
         x[m] = mesh.x[inode[m]]
         y[m] = mesh.y[inode[m]]
 
-        @info m, x[m], y[m]
+        #@info m, x[m], y[m]
     end
     
     #Diagonal distance:
@@ -2393,10 +2395,10 @@ function compute_element_size(ie, mesh::St_mesh, SD::NSD_2D, T)
     Δ34 = sqrt((x[3]-x[4])*(x[3]-x[4]) + (y[3]-y[4])*(y[3]-y[4]))
     Δ13 = sqrt((x[3]-x[1])*(x[3]-x[1]) + (y[3]-y[1])*(y[3]-y[1]))
 
-    @info Δ12
-    @info Δ24
-    @info Δ34
-    @info Δ13
+    #@info Δ12
+    #@info Δ24
+    #@info Δ34
+    #@info Δ13
     
     #Diagonal distance:
     Δ14 = sqrt((x[1]-x[4])*(x[1]-x[4]) + (y[1]-y[4])*(y[1]-y[4]))

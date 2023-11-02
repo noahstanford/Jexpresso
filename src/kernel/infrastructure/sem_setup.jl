@@ -118,14 +118,15 @@ function sem_setup(inputs::Dict)
            #warp_mesh!(mesh,inputs)
             matrix = matrix_wrapper(SD, QT, basis, ω, mesh, metrics, Nξ, Qξ, TFloat; ldss_laplace=inputs[:ldss_laplace], ldss_differentiation=inputs[:ldss_differentiation])
         end
-    else 
+    else
+        #1D
         basis = build_Interpolation_basis!(LagrangeBasis(), ξ, ξq, TFloat)
         ω1 = ω
         ω = ω1
     #--------------------------------------------------------
     # Build metric terms
     #--------------------------------------------------------
-        metrics = build_metric_terms(SD, COVAR(), mesh, basis, Nξ, Qξ, ξ, TFloat)
+        metrics = build_metric_terms(SD, COVAR(), mesh, basis, Nξ, Qξ, ξ, ω, TFloat)
     
         periodicity_restructure!(mesh,inputs)
      
