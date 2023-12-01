@@ -1,5 +1,7 @@
 using BenchmarkTools
 
+include("quantumsolver.jl")
+
 function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
                     PT,            #Problem type: this is the name of the directory such as CompEuler
                     SOL_VARS_TYPE, #TOTAL() vs PERT() for total vs perturbation solution variables
@@ -154,12 +156,17 @@ function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
         #println(" # Initial Energy: ", energy_ini)
     end
 
-   
-    @time solution = solve(prob,
-                           inputs[:ode_solver], dt=inputs[:Δt],
-                           save_everystep = false,
-                           adaptive=inputs[:ode_adaptive_solver],
-                           saveat = range(inputs[:tinit], inputs[:tend], length=inputs[:ndiagnostics_outputs]));
+    #quantum function call
+    #solveODE(prob, inputs[:ode_solver], inputs[:Δt])
+
+    # @time solution = solve(prob,
+    #                        inputs[:ode_solver], dt=inputs[:Δt],
+    #                        save_everystep = false,
+    #                        adaptive=inputs[:ode_adaptive_solver],
+    #                        saveat = range(inputs[:tinit], inputs[:tend], length=inputs[:ndiagnostics_outputs]));
+
+    #@info qp.qn
+    @time solution = solveODE(mesh, inputs, qp.qn)
     println(" # Solving ODE  ................................ DONE")
 
 

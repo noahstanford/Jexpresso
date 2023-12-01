@@ -8,13 +8,13 @@ function user_inputs()
         :ode_solver          => SSPRK33(),
         :tend                 => 3.0,
         :Δt                   => 1.0e-3,
-        :ndiagnostics_outputs => 30, #these are steps, not seconds
-        :output_dir          => "./",
+        :ndiagnostics_outputs => 2, #these are steps, not seconds
+        :output_dir          => "C:\\Users\\nstan\\Downloads\\internship\\new-jexpresso\\Jexpresso\\",
         #---------------------------------------------------------------------------
         #Integration and quadrature properties
         #---------------------------------------------------------------------------
         :interpolation_nodes => "lgl", # Choice: "lgl", "cg", "cgl"
-        :nop                 => 6,     # Polynomial order
+        :nop                 => 2,     # Polynomial order
         :lexact_integration  => false,
         :lsource             => false,
         :lperiodic_1d        => true, #false by default
@@ -41,7 +41,7 @@ function user_inputs()
         #---------------------------------------------------------------------------
         :xmin          =>   0.0,
         :xmax          =>   5.0,
-        :nelx          =>   50,
+        :nelx          =>   150,
     ) #Dict
     #---------------------------------------------------------------------------
     # END User define your inputs below: the order doesn't matter

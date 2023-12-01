@@ -49,13 +49,21 @@ parsed_args                = parse_commandline()
 parsed_equations           = string(parsed_args["eqs"])
 parsed_equations_case_name = string(parsed_args["eqs_case"])
 
-driver_file          = string(dirname(@__DIR__()), "/problems/equations/drivers.jl")
-case_name_dir        = string(dirname(@__DIR__()), "/problems/equations", "/", parsed_equations, "/", parsed_equations_case_name)
-user_input_file      = string(case_name_dir, "/user_inputs.jl")
-user_flux_file       = string(case_name_dir, "/user_flux.jl")
-user_source_file     = string(case_name_dir, "/user_source.jl")
-user_bc_file         = string(case_name_dir, "/user_bc.jl")
-user_initialize_file = string(case_name_dir, "/initialize.jl")
+# driver_file          = string(dirname(@__DIR__()), "/problems/equations/drivers.jl")
+# case_name_dir        = string(dirname(@__DIR__()), "/problems/equations", "/", parsed_equations, "/", parsed_equations_case_name)
+# user_input_file      = string(case_name_dir, "/user_inputs.jl")
+# user_flux_file       = string(case_name_dir, "/user_flux.jl")
+# user_source_file     = string(case_name_dir, "/user_source.jl")
+# user_bc_file         = string(case_name_dir, "/user_bc.jl")
+# user_initialize_file = string(case_name_dir, "/initialize.jl")
+
+driver_file          = joinpath(dirname(@__DIR__()), "problems", "equations", "drivers.jl")
+case_name_dir        = joinpath(dirname(@__DIR__()), "problems", "equations", parsed_equations, parsed_equations_case_name)
+user_input_file      = joinpath(case_name_dir, "user_inputs.jl")
+user_flux_file       = joinpath(case_name_dir, "user_flux.jl")
+user_source_file     = joinpath(case_name_dir, "user_source.jl")
+user_bc_file         = joinpath(case_name_dir, "user_bc.jl")
+user_initialize_file = joinpath(case_name_dir, "initialize.jl")
 
 include(driver_file)
 
@@ -78,10 +86,10 @@ inputs = mod_inputs_user_inputs!(user_input_file)
 #--------------------------------------------------------
 user_defined_output_dir = inputs[:output_dir]
 if user_defined_output_dir == "none"
-    OUTPUT_DIR = string(case_name_dir, "/output-",  Dates.format(now(), "dduyyyy-HHMMSS/"))
+    OUTPUT_DIR = joinpath(case_name_dir, "output-", string(Dates.format(now(), "dduyyyy-HHMMSS")))
     inputs[:output_dir] = OUTPUT_DIR
 else
-    OUTPUT_DIR = string(user_defined_output_dir, "/", parsed_equations, "/", parsed_equations_case_name, "/output-",  Dates.format(now(), "dduyyyy-HHMMSS/"))
+    OUTPUT_DIR = joinpath(user_defined_output_dir, parsed_equations, parsed_equations_case_name, "output-", string(Dates.format(now(), "dduyyyy-HHMMSS")))
 end
 if !isdir(OUTPUT_DIR)
     mkpath(OUTPUT_DIR)
@@ -90,7 +98,7 @@ end
 #--------------------------------------------------------
 #Save a copy of user_inputs.jl for the case being run 
 #--------------------------------------------------------
-run(`$cp $user_input_file $OUTPUT_DIR`) 
+#run(`$cp $user_input_file $OUTPUT_DIR`) 
 
 
 driver(ContGal(),   # Space discretization type    
