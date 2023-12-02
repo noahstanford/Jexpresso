@@ -15,21 +15,16 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
     q = define_q(SD, mesh.nelem, mesh.npoin, mesh.ngl, qvars, TFloat; neqs=length(qvars))
     #---------------------------------------------------------------------------------
     
-    σ = Float64(64.0)
-    for iel_g = 1:mesh.nelem
-        for i=1:mesh.ngl
             
-            ip = mesh.connijk[iel_g,i,1]
-            x = mesh.x[ip]
+    for ip=1:mesh.npoin
             
-            q.qn[ip,1] = 10.0
+            q.qn[ip,1] = 0.0
             q.qn[ip,2] = 0.0
 
             #Store initial background state for plotting and analysis of pertuebations
             q.qe[ip,1] = 10.0
             q.qe[ip,2] = 0.0
             
-        end
     end
 
     varnames = ["h,u"]
