@@ -182,17 +182,18 @@ function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
         #println(" # Initial Energy: ", energy_ini)
     end
 
-    #quantum function call
-    #solveODE(prob, inputs[:ode_solver], inputs[:Δt])
+    lqc = false
 
-    # @time solution = solve(prob,
-    #                        inputs[:ode_solver], dt=inputs[:Δt],
-    #                        save_everystep = false,
-    #                        adaptive=inputs[:ode_adaptive_solver],
-    #                        saveat = range(inputs[:tinit], inputs[:tend], length=inputs[:ndiagnostics_outputs]));
-
+    if (lqc == false)
+        @time solution = solve(prob,
+                           inputs[:ode_solver], dt=inputs[:Δt],
+                           save_everystep = false,
+                           adaptive=inputs[:ode_adaptive_solver],
+                           saveat = range(inputs[:tinit], inputs[:tend], length=inputs[:ndiagnostics_outputs]));
+    else
     #@info qp.qn
-    @time solution = solveODE(mesh, inputs, qp.qn)
+        @time solution = solveODE(mesh, inputs, qp.qn)
+    end
     println(" # Solving ODE  ................................ DONE")
 
 
