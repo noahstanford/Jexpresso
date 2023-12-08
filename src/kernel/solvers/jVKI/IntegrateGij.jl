@@ -87,8 +87,8 @@ function IntegrateGij(StoreLz, StoreTimes4i, Start,
 
 
     ###### set values of gij at interior grid pts ######
-    @info StoreLz[:, :, :, Int(j)]
-    readline();
+    #@info StoreLz[:, :, :, Int(j)]
+    #readline();
     Gij .= FuncOrc(t[:], StoreLz[:, :, :, Int(j)], d, rmaxp1, N,
       rho, Tot_Int_Pts, A, Gamma,
       Del_x, Shock_Flag, Exit_Pressure)
@@ -98,7 +98,7 @@ function IntegrateGij(StoreLz, StoreTimes4i, Start,
 
     GijVals = zeros(1, Int(N))
 
-    @info GijVals
+    #@info GijVals
 
     # integrate Gij over subsubinterval j for each interior grid-point; 
     #  one component at a time; following basic approach in quantum 

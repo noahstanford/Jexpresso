@@ -22,7 +22,7 @@ function solveODE(mesh::St_mesh, inputs::Dict, q)
     d = 3#mesh.neqs
     r = 2 #tentative
 
-    InitVal = zeros(Float64, 3, Tot_X_Pts)
+    InitVal = zeros(Float64, d, Tot_X_Pts)
 
     # InitVal[1,:] = q[1:mesh.npoin]
     # InitVal[2,:] = q[mesh.npoin+1:2*mesh.npoin]
@@ -43,7 +43,7 @@ function solveODE(mesh::St_mesh, inputs::Dict, q)
     U2_in = U2
     ff0_throat_in = zeros(Float64, d, n)
     ff1_throat_in = zeros(Float64, d, n)
-    ff2_throat_in = zeros(Float64, d, n)
+    ff2_throat_in = InitVal#zeros(Float64, d, n)
     Mach_E = zeros(Float64, Tot_X_Pts)
     Mrho_E = zeros(Float64, Tot_X_Pts)
     Press_E = zeros(Float64, Tot_X_Pts)
@@ -57,6 +57,8 @@ function solveODE(mesh::St_mesh, inputs::Dict, q)
         n, N, hbar, r, Del_x, Gamma, Tot_Int_Pts, k, Tot_X_Pts, Shock_Flag, 
         Exit_Pressure, ithroat, a, delta1, rho, InitVal, A, t, U2_in, ff0_throat_in, 
         ff1_throat_in, ff2_throat_in, Mach_E, Mrho_E, Press_E, Temp_E, Vel_E, In_Mass_Flow)
+
+    print(FinalVal)
 
     return FinalVal
 end
