@@ -7,7 +7,7 @@ function solveODE(mesh::St_mesh, inputs::Dict, q)
     Gamma = 1.4
     Tot_Int_Pts = mesh.npoin - 2
     Tot_X_Pts = mesh.npoin
-    Shock_Flag = 0
+    Shock_Flag = 1
     Exit_Pressure = 1
     ithroat = mesh.npoin - 2
     a = 0
