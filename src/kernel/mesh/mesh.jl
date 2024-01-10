@@ -82,9 +82,9 @@ Base.@kwdef mutable struct St_mesh{TInt, TFloat}
     connijk_lag ::Array{Int64,3} = zeros(Int64, 0, 0, 0)
     
     #if nsd == 1
-    #    connijk::Array{Int64,1} = zeros(Int64, 0, 0)
+        connijk::Array{Int64,2} = zeros(Int64, 0, 0)
     #elseif nsd == 2
-        connijk::Array{Int64,3} = zeros(Int64, 0, 0, 0)
+    #    connijk::Array{Int64,3} = zeros(Int64, 0, 0, 0)
     #elseif nsd == 3
     #    connijk::Array{Int64,4} = zeros(Int64, 0, 0, 0, 0)
     #end
@@ -248,7 +248,50 @@ function mod_mesh_read_gmsh!(mesh::St_mesh, inputs::Dict)
     mesh.cell_face_ids     = get_faces(topology, mesh.nsd, mesh.nsd-1) #face map from local to global numbering i.e. iface_g = cell_face_ids[1:NELEM][1:NFACE_EL]
 
 if (mesh.nsd == 1)
-    nothing
+    mesh.connijk::Array{Int64,2} = zeros(Int64, mesh.nelem, mesh.ngl)
+    
+    for iel = 1:mesh.nelem
+        mesh.conn[iel, 1] = mesh.cell_node_ids[iel][1]
+        mesh.conn[iel, 2] = mesh.cell_node_ids[iel][2]
+
+        #
+        # 1-----2
+        #
+        mesh.connijk[iel, 1] = mesh.cell_node_ids[iel][2]
+        mesh.connijk[iel, ngl] = mesh.cell_node_ids[iel][1]
+        
+        #=
+        # 1-----2
+        #
+        mesh.connijk[iel, 1,  1]    = mesh.cell_node_ids[iel][1]
+        mesh.connijk[iel, 1, ngl]   = mesh.cell_node_ids[iel][2]
+        mesh.connijk[iel, ngl, ngl] = mesh.cell_node_ids[iel][4]
+        mesh.connijk[iel, ngl, 1]   = mesh.cell_node_ids[iel][3]
+        =#
+        
+        #@printf(" [1,1] [ngl, 1] [1, ngl] [ngl, ngl] %d %d %d %d\n", mesh.connijk[iel, 1, 1], mesh.connijk[iel, ngl, 1] , mesh.connijk[iel, 1,ngl], mesh.connijk[iel, ngl, ngl] )
+        
+    end
+    #
+    # Fill in elements dictionary needed by NodeOrdering.jl
+    #
+    elements = Dict(
+        kk => mesh.conn[kk, 1:2]#previously 4
+        for kk = 1:mesh.nelem)
+    element_types = Dict(
+        kk => :Quad4
+        for kk = 1:mesh.nelem)
+    
+    #
+    # Rewrite coordinates in RCM order:
+    #
+    #open("./COORDS_LO.dat", "w") do f
+        for ip = 1:mesh.npoin_linear
+            
+            mesh.x[ip] = model.grid.node_coordinates[ip][1]
+            
+            #@printf(f, " %.6f %.6f 0.000000 %d\n", mesh.x[ip],  mesh.y[ip], ip)
+        end
 elseif (mesh.nsd == 2)
     
     mesh.connijk::Array{Int64,3} = zeros(Int64, mesh.nelem, mesh.ngl, mesh.ngl)

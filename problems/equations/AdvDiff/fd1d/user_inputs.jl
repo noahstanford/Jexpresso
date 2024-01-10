@@ -6,7 +6,7 @@ function user_inputs()
         # IMPORTANT NOTICE: DO NOT FORGET the "," at the end of each entry!!!
         #---------------------------------------------------------------------------
         :ode_solver          => SSPRK33(),
-        :tend                 => 1.0,
+        :tend                 => 0.01,
         :Δt                   => 1.0e-3,
         :ndiagnostics_outputs => 10, #these are steps, not seconds
         :output_dir          => "./",
@@ -15,7 +15,7 @@ function user_inputs()
         #---------------------------------------------------------------------------
         :AD                  => FD(),  # abstractDiscretization: default is ContGal()
         :interpolation_nodes => "lgl", # Choice: "lgl", "cg", "cgl"
-        :nop                 => 4,     # Polynomial order
+        :nop                 => 1,     # Polynomial order
         :lexact_integration  => false,
         :lsource             => false,
         :lperiodic_1d        => true, #false by default

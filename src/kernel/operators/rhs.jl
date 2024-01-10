@@ -58,24 +58,39 @@ end
 
 function uToPrimitives!(neqs, uprimitive, u, uauxe, mesh, δtotal_energy, iel, PT, ::CL, ::AbstractPert, SD::NSD_1D)
     
-    γ = 1.4
-    γm1 = 0.4
-    for i=1:mesh.ngl
-        
-        m1 = mesh.connijk[iel,i,1]
-        m2 = m1 + mesh.npoin
-        m3 = m2 + mesh.npoin
-        
-        x  = mesh.x[m1]           
-        A = 1.0 + 2.2*(x - 1.5)^2
-        
-        uprimitive[i,1,1] = u[m1]/A #ρ
-        uprimitive[i,1,2] = u[m2]/u[m1] #u
-        uprimitive[i,1,3] = γm1*(u[m3]/u[m1] - 0.5*γ*uprimitive[i,j,1]*uprimitive[i,j,1]) #T
+    if typeof(PT) == CompEuler
+        γ = 1.4
+        γm1 = 0.4
+        for i=1:mesh.ngl
+            
+            m1 = mesh.connijk[iel,i,1]
+            m2 = m1 + mesh.npoin
+            m3 = m2 + mesh.npoin
+            
+            x  = mesh.x[m1]           
+            A = 1.0 + 2.2*(x - 1.5)^2
+            
+            uprimitive[i,1,1] = u[m1]/A #ρ
+            uprimitive[i,1,2] = u[m2]/u[m1] #u
+            uprimitive[i,1,3] = γm1*(u[m3]/u[m1] - 0.5*γ*uprimitive[i,j,1]*uprimitive[i,j,1]) #T
 
-        #Pressure:
-        uprimitive[i,1,end] = uprimitive[i,1,1]*uprimitive[i,1,3] #ρ*T
-           
+            #Pressure:
+            uprimitive[i,1,end] = uprimitive[i,1,1]*uprimitive[i,1,3] #ρ*T
+            
+        end
+    elseif typeof(PT) == AdvDiff
+        
+        for i=1:mesh.ngl
+            
+            mieq = mesh.connijk[iel,i,j]
+            uprimitive[i,j,1] = u[mieq]
+            
+            for ieq = 2:neqs
+                mieq = mieq + mesh.npoin
+                uprimitive[i,j,ieq] = u[mieq]
+            end
+            
+        end
     end
 end
 
@@ -313,7 +328,7 @@ function inviscid_rhs_el!(u, params, lsource, SD::NSD_1D)
             end
         end
         
-        _expansion_inviscid!(params, iel, params.CL, params.QT, SD, params.AD)
+        _expansion_inviscid!(params, u, iel, params.CL, params.QT, SD, params.AD)
         
     end
 end
@@ -366,12 +381,14 @@ function viscous_rhs_el!(u, params, SD::NSD_2D)
     params.rhs_diff_el .= @views (params.rhs_diffξ_el .+ params.rhs_diffη_el)
 end
 
-function _expansion_inviscid!(params, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
+function _expansion_inviscid!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
 
+    #@info mesh.xmax mesh.xmin
+    #@mystop()
     for ieq = 1:params.neqs
-        for i = 1:params.mesh.ngl
+        for i = 2:params.mesh.ngl-1
             ip = params.mesh.connijk[iel,i,1]
-            params.RHS[ip,ieq] = 0.0
+            params.RHS[ip,ieq] = 5*(u[ip+1] - 2*u[ip] + u[ip-1])/(params.mesh.Δx[ip])^2
         end
     end
     

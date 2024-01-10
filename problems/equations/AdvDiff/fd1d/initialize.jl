@@ -18,8 +18,10 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
     σ = Float64(64.0)
     for iel_g = 1:mesh.nelem
         for i=1:mesh.ngl
-            
-            ip = mesh.connijk[iel_g,i,1]
+            #@info mesh.connijk[iel_g, :, :]
+            #@info mesh.connijk[iel_g, 1, 1] mesh.connijk[iel_g, 2, 1]
+            ip = mesh.connijk[iel_g,i,1] 
+            #@info ip[iel_g, i, 1]
             x = mesh.x[ip]
             
             q.qn[ip,1] = exp(-200.0*(x - 0.5)^2)

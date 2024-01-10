@@ -183,7 +183,7 @@ function time_loop!(QT,            #Quadrature type: Inexact() vs Exaxt()
         #println(" # Initial Energy: ", energy_ini)
     end
 
-    lqc = true
+    lqc = false
 
     if (lqc == false)
         @time solution = solve(prob,
