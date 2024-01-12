@@ -6,9 +6,9 @@ function user_inputs()
         # IMPORTANT NOTICE: DO NOT FORGET the "," at the end of each entry!!!
         #---------------------------------------------------------------------------
         :ode_solver          => SSPRK33(),
-        :tend                 => 0.01,
+        :tend                 => 3,
         :Δt                   => 1.0e-3,
-        :ndiagnostics_outputs => 10, #these are steps, not seconds
+        :ndiagnostics_outputs => 100, #these are steps, not seconds
         :output_dir          => "./",
         #---------------------------------------------------------------------------
         #Integration and quadrature properties
@@ -22,9 +22,9 @@ function user_inputs()
         #---------------------------------------------------------------------------
         # Physical parameters/constants:
         #---------------------------------------------------------------------------
-        :lvisc                => false,
-        :νx                   => 0.01, #kinematic viscosity constant
-        :νy                   => 0.01, #kinematic viscosity constant
+        :lvisc                => true, #false by default NOTICE: works only for Inexact
+        :ivisc_equations      => 1,
+        :μ                   => 0.1, #horizontal viscosity constant for momentum
         #---------------------------------------------------------------------------
         # Mesh paramters and files:
         #---------------------------------------------------------------------------

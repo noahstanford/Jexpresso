@@ -381,14 +381,34 @@ function viscous_rhs_el!(u, params, SD::NSD_2D)
     params.rhs_diff_el .= @views (params.rhs_diffξ_el .+ params.rhs_diffη_el)
 end
 
+function _expansion_inviscid_advdiff!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
+
+    #@info mesh.xmax mesh.xmin
+    #@mystop()
+    for ieq = 1:params.neqs
+        for i = 1:params.mesh.ngl
+            ip = params.mesh.connijk[iel,i,1]
+            if (ip < params.mesh.npoin)
+                #params.RHS[ip,ieq] = params.visc_coeff[ip]*(u[ip+1] - 2*u[ip] + u[ip-1])/(params.mesh.Δx[ip])^2 + 0.1*(u[ip+1] - u[ip])/(params.mesh.Δx[ip])
+                params.RHS[ip,ieq] = 0.5*(u[ip+1] - u[ip])/(params.mesh.Δx[ip])
+            end
+        end
+    end
+    
+    nothing
+end
+
 function _expansion_inviscid!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
 
     #@info mesh.xmax mesh.xmin
     #@mystop()
     for ieq = 1:params.neqs
-        for i = 2:params.mesh.ngl-1
+        for i = 1:params.mesh.ngl
             ip = params.mesh.connijk[iel,i,1]
-            params.RHS[ip,ieq] = 5*(u[ip+1] - 2*u[ip] + u[ip-1])/(params.mesh.Δx[ip])^2
+            if (ip < params.mesh.npoin)
+                #params.RHS[ip,ieq] = params.visc_coeff[ip]*(u[ip+1] - 2*u[ip] + u[ip-1])/(params.mesh.Δx[ip])^2 + 0.1*(u[ip+1] - u[ip])/(params.mesh.Δx[ip])
+                params.RHS[ip,ieq] = 0.5*(u[ip+1] - u[ip])/(params.mesh.Δx[ip])
+            end
         end
     end
     
