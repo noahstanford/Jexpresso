@@ -13,17 +13,18 @@ function user_inputs()
         #---------------------------------------------------------------------------
         #Integration and quadrature properties
         #---------------------------------------------------------------------------
+        :AD                  => FD(),
         :interpolation_nodes => "lgl", # Choice: "lgl", "cg", "cgl"
-        :nop                 => 2,     # Polynomial order
+        :nop                 => 1,     # Polynomial order
         :lexact_integration  => false,
         :lsource             => false,
         :lperiodic_1d        => true, #false by default
         #---------------------------------------------------------------------------
         # Physical parameters/constants:
         #---------------------------------------------------------------------------
-        :lvisc                => false,
-        :νx                   => 0.01, #kinematic viscosity constant
-        :νy                   => 0.01, #kinematic viscosity constant
+        :lvisc                => false, #false by default NOTICE: works only for Inexact
+        :ivisc_equations      => 1,
+        :μ                   => 0.1, #horizontal viscosity constant for momentum
         #---------------------------------------------------------------------------
         # Mesh paramters and files:
         #---------------------------------------------------------------------------
@@ -41,7 +42,7 @@ function user_inputs()
         #---------------------------------------------------------------------------
         :xmin          =>   0.0,
         :xmax          =>   5.0,
-        :nelx          =>   150,
+        :nelx          =>   50,
     ) #Dict
     #---------------------------------------------------------------------------
     # END User define your inputs below: the order doesn't matter
