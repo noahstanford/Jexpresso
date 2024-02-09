@@ -398,7 +398,8 @@ function _expansion_inviscid_advdiff!(params, u, iel, ::CL, QT::Inexact, SD::NSD
     nothing
 end
 
-function _expansion_inviscid!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
+# for wave eqn w/ 2 variables
+function _expansion_inviscid_wave!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
 
     #@info mesh.xmax mesh.xmin
     #@mystop()
@@ -423,6 +424,17 @@ function _expansion_inviscid!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD:
     end
     
     nothing
+end
+
+function _expansion_inviscid!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
+    for i=1:params.mesh.ngl
+        ip = params.mesh.connijk[iel, i, 1]
+        if (ip < params.mesh.npoin) 
+            params.RHS[ip, 1] = -1*u[ip+params.mesh.npoin]*(u[ip+1+2*params.mesh.npoin] - u[ip + 2*params.mesh.npoin])/params.mesh.Δx[ip] - u[ip+params.mesh.npoin]*u[ip+2*params.mesh.npoin]*(log(u[ip+1])-log(u[ip]))/params.mesh.Δx[ip] - u[ip+2*params.mesh.npoin]*(u[ip+params.mesh.npoin+1] - u[ip+params.mesh.npoin])/params.mesh.Δx[ip]
+            params.RHS[ip, 2] = -1*u[ip+2*params.mesh.npoin]*(u[ip + 2*params.mesh.npoin + 1] - u[ip + 2*params.mesh.npoin])/params.mesh.Δx[ip] - (1/params.inputs.γ)*( (u[ip + 3*params.mesh.npoin + 1] - u[ip + 3*params.mesh.npoin] )/params.mesh.Δx[ip] + (u[ip+2*params.mesh.npoin]/u[ip+params.mesh.npoin])*(u[ip+params.mesh.npoin+1] - u[ip+params.mesh.npoin])/params.mesh.Δx[ip] )
+            params.RHS[ip, 3] = -1*u[ip+2*params.mesh.npoin]*(u[ip + 3*params.mesh.npoin + 1] - u[ip + 3*params.mesh.npoin])/params.mesh.Δx[ip] - (params.inputs.γ - 1)*u[ip+2*params.mesh.npoin]*((u[ip + 2*params.mesh.npoin + 1] - u[ip + 2*params.mesh.npoin])/params.mesh.Δx[ip] + u[ip+2*params.mesh.npoin]*((log(u[ip+1])-log(u[ip]))/params.mesh.Δx[ip]))
+        end
+    end
 end
 
 function _expansion_inviscid!(params, u, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::ContGal)
