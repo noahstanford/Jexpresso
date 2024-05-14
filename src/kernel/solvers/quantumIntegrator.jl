@@ -11,20 +11,23 @@ include("quantumIntegrator/Set_XGrid.jl")
 include("quantumIntegrator/Calc_ExactResultsmSW.jl")
 include("quantumIntegrator/SetInCond.jl")
 
+using Plots;
+
 function quantumIntegrator(u, params, inputs)
-    N, delta1, n, k = InitParms(16, 0.005, 0.005, 1400) #all from qns_inputdata in jqc (user inputs)
+    Tot_TSteps = 1400
+    N, delta1, n, k = InitParms(16, 0.005, 0.005, Tot_TSteps) #all from qns_inputdata in jqc (user inputs)
     a = 0 
-    d = 3#params.mesh.neqs
+    d = 3#params.neqs
     r = 2
-    n = 8#Int(n)
-    N = 64#Int(N)
-    @info n, N
+    n = Int(n)
+    N = Int(N)
+    #@info n, N
     k = Int(k)
     Gamma = 1.4
     Tot_Int_Pts = params.mesh.npoin - 2
     Tot_X_Pts = params.mesh.npoin
     Shock_Flag = 0
-    Exit_Pressure = 1
+    Exit_Pressure = 0.6784
     ithroat = (Tot_X_Pts + 1)/2
     rho = 1
     x, Del_x = Set_XGrid(params.xmin, params.xmax, Tot_X_Pts)
@@ -47,7 +50,7 @@ function quantumIntegrator(u, params, inputs)
     U2_in = zeros(Float64, Tot_X_Pts, n+1) #initial mass flow rate in col. 1, all other cols are 0
     U2_in[1, :] .= In_Mass_Flow
     #InitVal, Delta_t, In_Mass_Flow_Noisy = SetInCond(shock_flag, In_Mass_Flow, gamma, x, Del_x, A, d, Mrho_E, Temp_E, ICMFlowErrScale, ICrhoErrScale, ICtempErrScale)
-    b =  0.0001#1400*Delta_t#inputs[:Δt]
+    b =  Tot_TSteps*Delta_t#inputs[:Δt]
     t, hbar = IPrtn(a, b, n, N)
     ff0_throat_in = zeros(Float64, d, n)
     ff1_throat_in = zeros(Float64, d, n)
@@ -72,5 +75,14 @@ function quantumIntegrator(u, params, inputs)
             u[(ieq-1)*Tot_X_Pts + ip] = FinalVal[ieq, ip]
         end
     end
+
+    x = range(0, 3, length=31)
+    y1 = FinalVal[1, :]
+    y2 = FinalVal[2, :]
+    y3 = FinalVal[3, :]
+
+    plot(x, [y1 y2 y3])
+    savefig("myplot.png")
+
     return u
 end

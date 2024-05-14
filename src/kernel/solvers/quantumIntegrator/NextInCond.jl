@@ -68,7 +68,7 @@ function NextInCond(mmat, InitVal, hbar, d, r, A, Gamma,
     #       boundary grid-points
 
     if (Shock_Flag .== 0)
-        U_Bvals = CalcBCmSW(InitVal, A, Gamma, d, Tot_X_Pts)
+        U_Bvals = CalcBCmSW(InitVal, A, Gamma, d, Tot_X_Pts) #check here too
     elseif (Shock_Flag .== 1)
         U_Bvals = CalcBCpSW(InitVal, A, Gamma, d, Tot_X_Pts, Exit_Pressure)
     else

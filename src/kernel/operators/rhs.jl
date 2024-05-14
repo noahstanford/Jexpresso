@@ -242,7 +242,7 @@ function _build_rhs!(RHS, u, params, time)
     ## end
     u2uaux!(@view(params.uaux[:,:]), u, params.neqs, params.mesh.npoin)
     
-    apply_boundary_conditions!(u, params.uaux, time, params.qp.qe,
+    apply_boundary_conditions!(params, u, params.uaux, time, params.qp.qe,
                                params.mesh, params.metrics, params.basis,
                                params.RHS, params.rhs_el, params.ubdy,
                                params.ω, neqs, params.inputs, AD, SD)
@@ -393,18 +393,43 @@ end
 
 
 function _expansion_inviscid!(u, params, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
-    
-    for ieq = 1:params.neqs
-        for ip=1:params.mesh.npoin
-            if (ip > 1 && ip < params.mesh.npoin)
-                params.RHS[ip,ieq] = -0.5*(params.F[ip+1,ieq] - params.F[ip-1,ieq])/(params.mesh.Δx[ip]) + params.S[ip,ieq]
-            end
-         end
+    Gamma = 1.4
+    A = zeros(Float64, params.mesh.npoin)
+    J = zeros(Float64, params.mesh.npoin)
+    for ip=1:params.mesh.npoin
+        A[ip] = 1.0 + 2.2*(params.mesh.x[ip] - 1.5)^2
     end
+    #for ieq = 1:params.neqs
+    totintpts = params.mesh.npoin -2
+    for ip = 2:(totintpts+1)
+        colPos = ip-1
+        fac1 = ( (Gamma - 1)/Gamma )*log(A[ip+1]/A[ip-1])
+        fac2 = Gamma/2
+
+        term1 = params.uaux[ip, 1]*params.uaux[ip,3]
+        term2 = params.uaux[ip, 2]*params.uaux[ip,2]
+        ratio1 = 1.0/params.uaux[ip,1]
+
+        J[colPos] = fac1*ratio1*( term1 - fac2*term2 )
+    end
+        for ip=2:totintpts # colPos indexes the interior grid-points
+                                #   it indexes the columns of J
+            gridlabel = ip+1
+            
+            params.RHS[ip,1] = -0.5*(params.F[gridlabel+1,1] - params.F[gridlabel-1,1])/(params.mesh.Δx[ip]) # + params.S[ip,ieq]
+            params.RHS[ip,2] = -0.5*(params.F[gridlabel+1,2] - params.F[gridlabel-1,2] - J[ip])/(params.mesh.Δx[ip]) # + params.S[ip,ieq] #fixed most values, last is still wrong
+            params.RHS[ip,3] = -0.5*(params.F[gridlabel+1,3] - params.F[gridlabel-1,3])/(params.mesh.Δx[ip]) # + params.S[ip,ieq] #only the last value is wrong
+            # @info  ip params.RHS[ip, 1] "1"
+            # @info  ip params.RHS[ip, 2] "2"
+            # @info  ip params.RHS[ip, 3] "3"
+        end
+        # @info "rhs" params.RHS[2, 2]
+        # readline();
+    #end
     
 end
 
-function _expansion_inviscid_upwind!(u, params, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
+function _expansion_inviscid_wave!(u, params, iel, ::CL, QT::Inexact, SD::NSD_1D, AD::FD)
     
     for ieq = 1:params.neqs
         for ip=1:params.mesh.npoin

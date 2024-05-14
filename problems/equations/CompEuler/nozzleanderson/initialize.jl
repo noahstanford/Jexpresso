@@ -28,12 +28,13 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
 
     initial = zeros(mesh.npoin, 10)
     
-    mass_flow = 0.59
+    mass_flow = 0.579
     
-    for iel_g = 1:mesh.nelem
-        for i=1:mesh.ngl
+    #for iel_g = 1:mesh.nelem
+    for ip=1:mesh.npoin
+        #for i=1:mesh.ngl
             
-            ip = mesh.connijk[iel_g,i,1]
+            #ip = mesh.connijk[iel_g,i,1]
             x  = mesh.x[ip]
 
             A = 1.0 + 2.2*(x - 1.5)^2
@@ -46,10 +47,10 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
                 elseif (x >= 0.5 && x < 1.5)
                     ρ = 1.0 - 0.366*(x - 0.5)
                     T = 1.0 - 0.167*(x - 0.5)
-                elseif (x >= 1.5 && x < 2.1)
+                elseif (x > 1.5 && x < 2.1)
                     ρ = 0.634 - 0.702*(x - 1.5)
                     T = 0.833 - 0.4908*(x - 1.5)
-                elseif (x >= 2.1 && x <= 3.0)
+                elseif (x > 2.1 && x <= 3.0)
                     ρ = 0.5892 - 0.10228*(x - 1.5)
                     T = 0.93968 - 0.0622*(x - 1.5)
                 end
@@ -57,10 +58,10 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
                 if (x >= 0.0 && x <= 0.5)
                     ρ = 1.0
                     T = 1.0
-                elseif (x >= 0.5 && x <= 1.5)
+                elseif (x > 0.5 && x <= 1.5)
                     ρ = 1.0 - 0.366*(x - 0.5)
                     T = 1.0 - 0.167*(x - 0.5)
-                elseif (x >= 1.5 && x <= 3.5)
+                elseif (x > 1.5 && x <= 3.5)
                     ρ = 0.634 - 0.3879*(x - 1.5)
                     T = 0.833 - 0.3507*(x - 1.5)
                 end
@@ -72,10 +73,11 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
             initial[ip,2] = ρ
             initial[ip,3] = u
             initial[ip,4] = T
-                        
+            #@info "a" A
+            
             q.qn[ip,1] = ρ*A
             q.qn[ip,2] = ρ*A*u
-            q.qn[ip,3] = ρ*(e/γm1 + 0.5*γ*u*u)*A
+            q.qn[ip,3] = q.qn[ip, 1]*(e/γm1 + 0.5*γ*u*u)
             q.qn[ip,end] = p
 
             initial[ip,6] = q.qn[ip,1]
@@ -90,8 +92,11 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
             qout[ip,2] = q.qn[ip,2]/q.qn[ip,1]
             qout[ip,3] = γm1*(q.qn[ip,3]/q.qn[ip,1] - 0.5*γ*u*u)
             qout[ip,end] = ρ*T
-        end
+
+            #@info q.qn[ip,3]
     end
+
+    #readline();
 
     C = 0.5
     Del_x = (mesh.xmax - mesh.xmin)/(mesh.npoin-1)

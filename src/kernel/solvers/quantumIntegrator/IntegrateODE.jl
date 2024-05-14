@@ -180,7 +180,6 @@ function IntegrateODE(d, n, N, hbar, r, Del_x, Gamma, Tot_Int_Pts, k, Tot_X_Pts,
 
   ###### looping over all subintervals as defined in paper######
   @info InitVal
-  readline();
   for i = 1:n
     #build Taylor polynomials l^{s}_[i](t)for subinterval i at all()
     #   interior grid-points; store polynomial coefficients in 
@@ -190,7 +189,7 @@ function IntegrateODE(d, n, N, hbar, r, Del_x, Gamma, Tot_Int_Pts, k, Tot_X_Pts,
     #       of subinterval i
 
     # builds the taylor polynomial for each subinterval. Eqn 9 in review? #
-    StoreLz, ff_throat = BldTPoly(d, n, N, hbar, r, InitVal, Del_x, Gamma, Tot_Int_Pts, Tot_X_Pts, A, Shock_Flag, Exit_Pressure, ithroat)
+    StoreLz, ff_throat = BldTPoly(d, n, N, hbar, r, InitVal, Del_x, Gamma, Tot_Int_Pts, Tot_X_Pts, A, Shock_Flag, Exit_Pressure, ithroat, params, InitVal)
 
     # store values of ff_throat for subinterval i for easy of writing to
     #   files

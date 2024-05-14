@@ -5,7 +5,7 @@ include("NextInCond.jl");
 function BldTPoly(dd, nn, NN, hb, rr, InVal, Del_x,
     Gamma, Tot_Int_Pts,
     Tot_X_Pts, A, Shock_Flag,
-    Exit_Pressure, ithroat)
+    Exit_Pressure, ithroat, params, U2)
     #BLDTPOLY calculates all Taylor polynomial coefficients for subint i
     #   BldTPoly calculates the Taylor polynomial coefficients for each
     #   subsubinterval j in the subinterval i.
@@ -52,7 +52,7 @@ function BldTPoly(dd, nn, NN, hb, rr, InVal, Del_x,
         #    store in ff = dd x [rr+1] x Tot_Int_Pts array
 
         ff = Derivs(dd, rr, InVal, Del_x, Gamma, Tot_Int_Pts, Tot_X_Pts, A,
-            Shock_Flag)
+            Shock_Flag, params, U2)
         #@info "ff =: " ff
         #readline();
         # if j .== NN store values of ff at ithroat to send back to 

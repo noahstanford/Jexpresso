@@ -13,7 +13,7 @@ include("Calc_d2Jdt2.jl");
 include("Calc_d2ffdt2.jl");
 
 function Derivs( d,r,InitVal,Del_x,Gamma,Tot_Int_Pts,Tot_X_Pts,
-    A,Shock_Flag)
+    A,Shock_Flag, params, U)
 #DERIVS evaluates ODE driver function f & its first r time derivatives
 #   Derivs evaluates the ODE driver function f(z) & its first r time
 #    derivatives at z = InitVal. 
@@ -61,18 +61,41 @@ ff = zeros(d,rmax,Tot_Int_Pts); # store i-th derivative values in column i
 #
 # 1.a Evaluate flow fluxes F which is a d x Tot_X_Pts array
 
-F = CalcFlux(InitVal,Gamma,d,Tot_X_Pts)
+#F = CalcFlux(InitVal,Gamma,d,Tot_X_Pts)
+# F = user_flux
 
-# 1.b Evaluate source current J in momentum equation of motion which is()
-#       a 1 x Tot_Int_Pts array
+# # 1.b Evaluate source current J in momentum equation of motion which is()
+# #       a 1 x Tot_Int_Pts array
 
-J = CalcSource(InitVal,A,Gamma,Tot_X_Pts)
+# J = CalcSource(InitVal,A,Gamma,Tot_X_Pts)
+
+
+#ff_vals = CalcFunc(F,J,Del_x,d,Tot_Int_Pts)
 
 # 1.c Now calculate ff[d,1, Tot_Int_Pts] which stores driver function 
 #       values. First calculate ff_vals = d x Tot_Int_Pts array which() 
 #       stores ff values at all interior grid-point.
+    u = zeros(Float64, params.mesh.npoin*d)
+    for ip=1:Tot_X_Pts
+        for ieq=0:d-1
+            u[Tot_X_Pts*ieq + ip] = U[ieq+1, ip]
+        end
+    end
 
-ff_vals = CalcFunc(F,J,Del_x,d,Tot_Int_Pts)
+    build_rhs!(params.RHS, u, params, 0.0)
+
+
+    # for m=1:d
+    #     U[m,1] = params.uaux[1,m]
+    #     U[m,Tot_X_Pts] = params.uaux[Tot_X_Pts, m]
+    # end
+
+    ff_vals = zeros(Float64, d, Tot_Int_Pts)
+    for i=1:Tot_Int_Pts
+        for j=1:d
+            ff_vals[j, i] = params.RHS[i+1, j]
+        end
+    end
 
 # 1.d Now store ff_vals in d x rmax x Tot_Int_Pts array ff
 
@@ -96,7 +119,7 @@ end
 #                       at nozzle entrance [exit] in column 1 [2].
 
 if Shock_Flag .== 0
-    ff_Bvals = CalcfBvalsmSW(InitVal,Gamma,ff_vals,d,Tot_Int_Pts)
+    ff_Bvals = CalcfBvalsmSW(InitVal,Gamma,ff_vals,d,Tot_Int_Pts) #check here
 elseif Shock_Flag .== 1
     ff_Bvals = CalcfBvalspSW(InitVal,Gamma,ff_vals,d,Tot_Int_Pts)
 else

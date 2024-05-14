@@ -31,7 +31,7 @@ function initialize(SD, PT, mesh::St_mesh, inputs::Dict, OUTPUT_DIR::String, TFl
     end
 
     varnames = ["q1"]
-    write_output(NSD_1D(), q.qn, mesh, OUTPUT_DIR, inputs, varnames, PNG())
+    #write_output(NSD_1D(), q.qn, mesh, OUTPUT_DIR, inputs, varnames, PNG())
     
     @info " Initialize fields for 1D adv diff ........................ DONE "
     

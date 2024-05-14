@@ -14,6 +14,7 @@ function user_inputs()
         #Integration and quadrature properties
         #---------------------------------------------------------------------------
         :AD                  => FD(),  # abstractDiscretization: default is ContGal()
+        :lquantum            => true,
         :interpolation_nodes => "lgl", # Choice: "lgl", "cg", "cgl"
         :nop                 => 1,     # Polynomial order
         :lexact_integration  => false,

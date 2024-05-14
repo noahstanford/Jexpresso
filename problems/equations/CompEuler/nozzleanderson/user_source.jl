@@ -18,7 +18,7 @@ function user_source!(S::SubArray{Float64},
     J = (1/γ)*(q[1]/A)*γm1*((q[3]/q[1])-0.5*γ*u*u)*dAdx
     #J = γm1/γ*(q[3] - 0.5*γ*q[2]*q[2]/q[1])*dlnAdx
     S[1] = 0.0
-    S[2] = J#p*dAdx/γ
+    S[2] = 0#J#p*dAdx/γ
     S[3] = 0.0
     
 end

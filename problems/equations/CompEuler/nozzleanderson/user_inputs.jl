@@ -3,7 +3,7 @@ function user_inputs()
         #---------------------------------------------------------------------------
         # User define your inputs below: the order doesn't matter
         #---------------------------------------------------------------------------
-        :tend                 => 0.001,
+        :tend                 => 1.0,
         :ode_solver           => ABM54(), #ORK256(),#SSPRK33(), #SSPRK33(), #MSRK5(), #SSPRK54(),
         :Δt                   => 0.0001,
         :ndiagnostics_outputs => 20,
@@ -17,6 +17,7 @@ function user_inputs()
         #:llump               => true,
         :interpolation_nodes =>"lgl",
         :nop                 => 1,
+        :lquantum            => true,
         #---------------------------------------------------------------------------
         # Physical parameters/constants:
         #---------------------------------------------------------------------------
@@ -30,7 +31,7 @@ function user_inputs()
         #:lread_gmsh => false, #If false, a 1D problem will be enforced
         :xmin => 0.0,
         :xmax => 3.0,
-        :nelx => 120,
+        :nelx => 30,
         #---------------------------------------------------------------------------
         # Filter parameters
         #---------------------------------------------------------------------------

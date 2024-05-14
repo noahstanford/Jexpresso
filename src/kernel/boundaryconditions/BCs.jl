@@ -1,6 +1,6 @@
 include("custom_bcs.jl")
 
-function apply_boundary_conditions!(u, uaux, t,qe,
+function apply_boundary_conditions!(params, u, uaux, t,qe,
                                     mesh, metrics, basis,
                                     RHS, rhs_el, ubdy,
                                     ω, neqs, inputs, AD, SD::NSD_1D)
@@ -13,7 +13,7 @@ function apply_boundary_conditions!(u, uaux, t,qe,
         build_custom_bcs!(SD, t, mesh, metrics, ω,
                           ubdy, uaux, u, qe,
                           @view(RHS[:,:]), @view(rhs_el[:,:,:,:]),
-                          neqs, dirichlet!, neumann, inputs)
+                          neqs, dirichlet!, neumann, inputs, params)
     end
 end
 
@@ -155,11 +155,11 @@ end
 function build_custom_bcs!(::NSD_1D, t, mesh, metrics, ω,
                            qbdy, uaux, u, qe,
                            RHS, rhs_el,
-                           neqs, dirichlet!, neumann, inputs)
+                           neqs, dirichlet!, neumann, inputs, params)
     ip = 1
     fill!(qbdy, 4325789.0)
     #user_bc_dirichlet!(@view(uaux[ip,:]), mesh.x[ip], t, "left", qbdy, @view(qe[ip,:]),inputs[:SOL_VARS_TYPE])
-    user_bc_dirichlet!(@view(uaux[:,:]), mesh.x[ip], t, "left", qbdy, @view(qe[:,:]),
+    user_bc_dirichlet!(u, params, @view(uaux[:,:]), mesh.x[ip], t, "left", qbdy, @view(qe[:,:]),
     inputs[:SOL_VARS_TYPE])
     for ieq =1:neqs
         if !AlmostEqual(qbdy[ieq],uaux[ip,ieq]) && !AlmostEqual(qbdy[ieq],4325789.0) # WHAT's this for?
@@ -171,7 +171,7 @@ function build_custom_bcs!(::NSD_1D, t, mesh, metrics, ω,
     ip=mesh.npoin_linear
     fill!(qbdy, 4325789.0)
     #user_bc_dirichlet!(@view(uaux[ip,:]), mesh.x[ip], t, "right", qbdy, @view(qe[ip,:]),inputs[:SOL_VARS_TYPE])
-    user_bc_dirichlet!(@view(uaux[:,:]), mesh.x[ip], t, "right", qbdy, @view(qe[:,:]),
+    user_bc_dirichlet!(u, params, @view(uaux[:,:]), mesh.x[ip], t, "right", qbdy, @view(qe[:,:]),
     inputs[:SOL_VARS_TYPE])
     for ieq =1:neqs
         if !AlmostEqual(qbdy[ieq],uaux[ip,ieq]) && !AlmostEqual(qbdy[ieq],4325789.0) # WHAT's this for?
